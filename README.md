@@ -1,133 +1,111 @@
-# SuperStore Global Sales Analysis — SQL + Excel
+# SuperStore Sales Analysis — SQL + Excel
 
-## Project Overview
+A deep dive into 4 years of global retail data (2011–2014) to figure out where money is being made, where it's being lost, and why.
 
-End-to-end sales analysis of a global retail superstore covering **51,290 orders across 4 years (2011–2014)** and **13 regions worldwide**. The project extracts business insights using SQL and presents them in an interactive Excel dashboard.
-
-**Tools:** MySQL Workbench · Microsoft Excel  
-**Dataset:** 51,290 rows | 21 columns | $12.6M total revenue
+**Dataset:** 51,290 orders · 13 regions · $12.6M revenue  
+**Tools:** MySQL Workbench, Microsoft Excel
 
 ---
 
-## Key Business Insights
+## What's in this repo
 
-| # | Finding | Impact |
-|---|---------|--------|
-| 1 | Revenue grew **90% over 4 years** ($2.26M → $4.30M), ~24% CAGR | Strong upward trajectory |
-| 2 | **Tables sub-category loses $64K** despite $757K in sales | Discount strategy needs a cap |
-| 3 | **Central region** drives 22% of global revenue ($2.82M) | Priority market for investment |
-| 4 | Orders with **40%+ discounts produce negative profit margins** (-12%) | Discounting policy needs reform |
-| 5 | **Q4 (Oct–Dec) consistently peaks** across all 4 years | Seasonal inventory planning required |
-| 6 | **Technology** is the highest-margin category (14% vs Furniture's 7%) | Shift product mix toward Technology |
-| 7 | **Canon imageCLASS 2200 Copier** is the single highest-profit product ($25K) | Focus upsell efforts here |
+| File | What it is |
+|------|------------|
+| `SuperStoreOrders.csv` | Raw data |
+| `analysis.sql` | 12 SQL queries — from basic aggregations to window functions and CTEs |
+| `SuperStore_Dashboard.xlsx` | 6-tab Excel workbook with charts and formatted summaries |
 
 ---
 
-## Files
+## Revenue grew, but not evenly
 
-| File | Description |
-|------|-------------|
-| `SuperStoreOrders.csv` | Raw dataset (51,290 orders) |
-| `analysis.sql` | 12 SQL queries covering trends, segmentation, and loss analysis |
-| `SuperStore_Dashboard.xlsx` | 6-tab Excel workbook with charts, pivot summaries, and formatted tables |
+![Yearly Revenue and Profit](charts/yearly_trends.png)
+
+Revenue nearly doubled from $2.26M in 2011 to $4.30M in 2014 (~24% CAGR). Profit tracked alongside it, but the margin stayed relatively flat — meaning growth was volume-driven, not efficiency-driven. Something to watch.
 
 ---
 
-## SQL Analysis — Query Summary
+## Some regions are carrying the rest
 
-The `analysis.sql` file contains **12 business-driven queries**, including:
+![Revenue by Region](charts/revenue_by_region.png)
 
-1. **Revenue Overview** — Total orders, revenue, profit, margin
-2. **Yearly Trends** — YoY growth using `LAG()` window function
-3. **Regional Distribution** — Revenue ranking with `RANK()` window function
-4. **Category Performance** — Revenue and profit by product category
-5. **Loss-Making Sub-Categories** — CASE statement to flag LOSS / LOW MARGIN / HEALTHY
-6. **Discount Impact Analysis** — How discount bands affect profitability
-7. **Customer Segment Analysis** — Revenue per customer by segment
-8. **Top 10 Products by Profit** — Best-performing products
-9. **Monthly Seasonality** — Year-partitioned window averages to detect seasonal peaks
-10. **Shipping Mode Analysis** — CTE to evaluate shipping cost efficiency
-11. **High-Discount Furniture Deep Dive** — Subquery to quantify discount losses
-12. **Rolling 3-Month Revenue** — Smoothed trend using `ROWS BETWEEN` window frame
-
-**SQL concepts demonstrated:** `GROUP BY`, `HAVING`, `CASE`, `CTE`, `Subqueries`, Window Functions (`LAG`, `RANK`, `AVG OVER`, `SUM OVER`, `ROWS BETWEEN`), `JOIN`-ready schema.
+Central alone accounts for 22% of global revenue ($2.82M). At the other end, Southeast Asia pulls in $884K but runs at a 2% profit margin — barely breaking even. Canada is a rounding error at $67K.
 
 ---
 
-## Excel Dashboard — Sheet Guide
+## Monthly revenue — Q4 peaks, every year
 
-| Tab | Contents |
-|-----|----------|
-| **Dashboard** | KPI summary cards + yearly, category, and segment tables |
-| **Regional Analysis** | Revenue & profit by region with status flags and bar chart |
-| **Monthly Trends** | Month-by-month revenue, profit, margin %, and MoM growth % with line chart |
-| **Sub-Category Analysis** | All 17 sub-categories with LOSS/MARGINAL/HEALTHY status flags and bar chart |
-| **Segment & Top Products** | Pie chart by segment + top 10 profit-driving products |
-| **Raw Data** | Formatted sample of source data (3,000 rows) |
+![Monthly Revenue Trend](charts/monthly_trend.png)
 
-**Excel features used:** Structured tables, conditional formatting (color-coded status flags), bar/line/pie charts, formula-driven totals (`SUM`, `AVERAGE`, percentage formulas), alternating row banding, freeze panes, data validation.
+November and December spike in all four years. Q1 is consistently the slowest. The pattern is clear enough that inventory and staffing should be planned around it.
 
 ---
 
-## Dashboard Preview
+## One sub-category is actively losing money
 
-### KPI Summary
+![Sub-Category Profit](charts/subcat_profit.png)
+
+Tables generates $757K in revenue but loses $64K in profit. It's the only sub-category in the red. Every other category at least breaks even — but Tables is being discounted so heavily that revenue doesn't cover costs.
+
+---
+
+## Discounting is the core problem
+
+![Discount vs Profit](charts/discount_scatter.png)
+
+Zero-discount orders average around 23% margin. Once discounts hit 40%+, margin goes negative. The scatter makes it visual — the deeper the discount, the more likely the order is losing money. Caps on discount levels, especially for Furniture, would immediately improve profitability.
+
+---
+
+## SQL — what the queries cover
+
+12 queries in `analysis.sql`, structured around specific business questions:
+
+1. Overall revenue, profit, and order KPIs
+2. Year-over-year growth using `LAG()` window function
+3. Regional revenue ranking with `RANK()`
+4. Category breakdown — Technology vs Furniture vs Office Supplies
+5. Sub-category loss flagging with `CASE` (HEALTHY / MARGINAL / LOSS)
+6. Discount band analysis — how discount depth affects margin
+7. Segment performance — Consumer, Corporate, Home Office
+8. Top 10 products by profit
+9. Monthly seasonality using year-partitioned window averages
+10. Shipping mode profitability using a `CTE`
+11. High-discount Furniture deep dive (subquery)
+12. Rolling 3-month revenue with `ROWS BETWEEN` window frame
+
+---
+
+## Excel dashboard — sheet by sheet
+
+The workbook has 6 tabs:
+
+- **Dashboard** — KPI cards (revenue, profit, orders, margin) + year/category/segment summary tables
+- **Regional Analysis** — All 13 regions with revenue, profit, margin, and a status flag (Healthy/Marginal/Loss) + bar chart
+- **Monthly Trends** — Month-by-month revenue, profit, margin %, and MoM growth % with a line chart
+- **Sub-Category Analysis** — All 17 sub-categories color-coded by profitability status + bar chart
+- **Segment & Top Products** — Pie chart by segment + top 10 profit-driving products ranked
+- **Raw Data** — Formatted source data sample (3,000 rows) with freeze panes
+
+---
+
+## Quick numbers
+
 | Metric | Value |
 |--------|-------|
 | Total Revenue | $12,642,905 |
 | Total Profit | $1,469,035 |
-| Total Orders | 25,035 |
 | Profit Margin | 11.6% |
-
-### Revenue by Region (Top 5)
-| Region | Revenue | Profit | Margin |
-|--------|---------|--------|--------|
-| Central | $2,822,399 | $311,404 | 11.0% |
-| South | $1,600,960 | $140,356 | 8.8% |
-| North | $1,248,192 | $194,598 | 15.6% |
-| Oceania | $1,100,207 | $121,667 | 11.1% |
-| Southeast Asia | $884,438 | $17,852 | 2.0% |
-
-### Profit by Category
-| Category | Revenue | Profit | Margin |
-|----------|---------|--------|--------|
-| Technology | $4,744,691 | $663,779 | 14.0% |
-| Office Supplies | $3,787,330 | $518,474 | 13.7% |
-| Furniture | $4,110,884 | $286,782 | 7.0% |
-
-### Loss-Making Sub-Categories
-| Sub-Category | Revenue | Profit | Status |
-|--------------|---------|--------|--------|
-| Tables | $757,034 | **-$64,083** | 🔴 LOSS |
-| Supplies | $243,090 | $22,583 | 🟡 MARGINAL |
-| Fasteners | $83,254 | $11,525 | 🟡 MARGINAL |
+| Total Orders | 25,035 |
+| Best Region | Central ($2.82M) |
+| Worst Sub-Category | Tables (-$64K profit) |
+| #1 Product by Profit | Canon imageCLASS 2200 Copier ($25K) |
 
 ---
 
-## Recommendations
+## How to run the SQL
 
-1. **Cap furniture discounts at 20%** — Tables loses money at high discounts while still moving inventory. A discount ceiling would recover ~$40K annually.
-2. **Double down on Technology** — Highest margins and strongest profit contribution. Prioritise in marketing and inventory.
-3. **Invest in Q4 preparedness** — All 4 years show November/December spikes. Pre-position inventory by October.
-4. **Review Southeast Asia strategy** — $884K in revenue but only 2% profit margin, below cost of capital.
-5. **Flag Standard Class as the optimal shipping mode** — Offers the best balance of margin and volume. Same Day shipping has the worst cost-to-revenue ratio.
-
----
-
-## How to Reproduce
-
-**SQL:**
-1. Create the `superstore` database in MySQL Workbench
-2. Run the `CREATE TABLE` statement in `analysis.sql`
-3. Import `SuperStoreOrders.csv` using the Table Data Import Wizard
-4. Run each numbered query section
-
-**Excel:**
-- Open `SuperStore_Dashboard.xlsx` directly — all charts and summaries are pre-built
-
----
-
-## About
-
-Built to demonstrate data analysis using SQL and Excel on a real-world retail dataset.  
-**Skills demonstrated:** Data cleaning · Aggregation · Window functions · CTEs · Dashboard design · Business storytelling
+1. Create a `superstore` database in MySQL Workbench
+2. Use the `CREATE TABLE` block at the top of `analysis.sql`
+3. Import `SuperStoreOrders.csv` via the Table Data Import Wizard
+4. Run each numbered section — they're independent, so you can run any one on its own
